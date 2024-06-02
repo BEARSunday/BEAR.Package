@@ -4,6 +4,6 @@
     "static", "self", "parent",
     "array", "string", "int", "float", "bool", "iterable", "callable", "void", "object", "mixed",
     "Composer\\Autoload\\ClassLoader", "Doctrine\\Common\\Cache\\FilesystemCache", "Doctrine\\Common\\Cache\\PhpFileCache",
-    "BEAR\\Resource\\ReverseLinkInterface"
+    "BEAR\\Resource\\ReverseLinkInterface", "Doctrine\\Common\\Cache\\ArrayCache"
   ]
 }

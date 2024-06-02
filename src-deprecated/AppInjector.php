@@ -6,6 +6,7 @@ namespace BEAR\Package;
 
 use BEAR\AppMeta\AbstractAppMeta;
 use BEAR\AppMeta\Meta;
+use BEAR\Package\Module\CacheModule;
 use Doctrine\Common\Cache\FilesystemCache;
 use Ray\Compiler\ScriptInjector;
 use Ray\Di\AbstractModule;
@@ -13,6 +14,7 @@ use Ray\Di\Bind;
 use Ray\Di\Injector;
 use Ray\Di\InjectorInterface;
 use Ray\Di\Name;
+use RuntimeException;
 
 /**
  * @deprecated
@@ -58,6 +60,7 @@ final class AppInjector implements InjectorInterface
 
     public function __construct(string $name, string $context, AbstractAppMeta $appMeta = null, string $cacheNamespace = null)
     {
+        $this->checkVersion();
         $this->context = $context;
         $this->appMeta = $appMeta instanceof AbstractAppMeta ? $appMeta : new Meta($name, $context);
         $this->cacheNamespace = (string) $cacheNamespace;
@@ -133,6 +136,7 @@ final class AppInjector implements InjectorInterface
             return $this->module;
         }
         $module = (new Module)($this->appMeta, $this->context);
+        $module->install(new CacheModule());
         /* @var AbstractModule $module */
         $container = $module->getContainer();
         (new Bind($container, InjectorInterface::class))->toInstance($this->injector);
@@ -140,5 +144,12 @@ final class AppInjector implements InjectorInterface
         $this->module = $module;
 
         return $module;
+    }
+
+    private function checkVersion(): void
+    {
+        if (! class_exists('Doctrine\Common\Cache\FilesystemCache')) {
+            throw new RuntimeException('Doctrine cache ^1.0 is required for AppInjector. Please install doctrine/cache ^1.0');
+        }
     }
 }
