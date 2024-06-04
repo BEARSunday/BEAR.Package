@@ -52,12 +52,7 @@ final class PackageInjector
         [$injector, $fileUpdate] = $cache->getItem($injectorId)->get(); // @phpstan-ignore-line
         $isCacheableInjector = $injector instanceof ScriptInjector || ($injector instanceof InjectorInterface && $fileUpdate instanceof FileUpdate && $fileUpdate->isNotUpdated($meta));
         if (! $isCacheableInjector) {
-            $injector = self::factory($meta, $context);
-            $cache->save($cache->getItem($injectorId)->set([$injector, new FileUpdate($meta)]));
-            // Check the cache
-            if ($cache->getItem($injectorId)->get() === null) {
-                trigger_error('Failed to verify the injector cache. See https://github.com/bearsunday/BEAR.Package/issues/418', E_USER_WARNING);
-            }
+            $injector = self::getInjector($meta, $context, $cache, $injectorId);
         }
 
         self::$instances[$injectorId] = $injector;
@@ -83,6 +78,18 @@ final class PackageInjector
         }
 
         $injector->getInstance(AppInterface::class);
+
+        return $injector;
+    }
+
+    private static function getInjector(AbstractAppMeta $meta, string $context, AdapterInterface $cache, string $injectorId): InjectorInterface
+    {
+        $injector = self::factory($meta, $context);
+        $cache->save($cache->getItem($injectorId)->set([$injector, new FileUpdate($meta)]));
+        // Check the cache
+        if ($cache->getItem($injectorId)->get() === null) {
+            trigger_error('Failed to verify the injector cache. See https://github.com/bearsunday/BEAR.Package/issues/418', E_USER_WARNING);
+        }
 
         return $injector;
     }
