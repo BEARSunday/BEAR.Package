@@ -40,6 +40,12 @@ final class PackageInjector
     {
     }
 
+    /**
+     * Returns an instance of InjectorInterface based on the given parameters
+     *
+     * - Injector instances are cached in memory and in the cache adapter.
+     * - The injector is re-used in subsequent calls in the same context in the unit test.
+     */
     public static function getInstance(AbstractAppMeta $meta, string $context, CacheInterface|null $cache): InjectorInterface
     {
         $injectorId = str_replace('\\', '_', $meta->name) . $context;
@@ -60,6 +66,11 @@ final class PackageInjector
         return $injector;
     }
 
+    /**
+     * Return an injector instance with the given override module
+     *
+     * This is useful for testing purposes, where you want to override a module with a mock or stub
+     */
     public static function factory(AbstractAppMeta $meta, string $context, AbstractModule|null $overrideModule = null): InjectorInterface
     {
         $scriptDir = $meta->tmpDir . '/di';
