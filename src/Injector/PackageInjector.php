@@ -40,6 +40,12 @@ final class PackageInjector
     {
     }
 
+    /**
+     * Returns an instance of InjectorInterface based on the given parameters
+     *
+     * - Injector instances are cached in memory and in the cache adapter.
+     * - The injector is re-used in subsequent calls in the same context in the unit test.
+     */
     public static function getInstance(AbstractAppMeta $meta, string $context, CacheInterface|null $cache): InjectorInterface
     {
         $injectorId = str_replace('\\', '_', $meta->name) . $context;
@@ -52,12 +58,7 @@ final class PackageInjector
         [$injector, $fileUpdate] = $cache->getItem($injectorId)->get(); // @phpstan-ignore-line
         $isCacheableInjector = $injector instanceof ScriptInjector || ($injector instanceof InjectorInterface && $fileUpdate instanceof FileUpdate && $fileUpdate->isNotUpdated($meta));
         if (! $isCacheableInjector) {
-            $injector = self::factory($meta, $context);
-            $cache->save($cache->getItem($injectorId)->set([$injector, new FileUpdate($meta)]));
-            // Check the cache
-            if ($cache->getItem($injectorId)->get() === null) {
-                trigger_error('Failed to verify the injector cache. See https://github.com/bearsunday/BEAR.Package/issues/418', E_USER_WARNING);
-            }
+            $injector = self::getInjector($meta, $context, $cache, $injectorId);
         }
 
         self::$instances[$injectorId] = $injector;
@@ -65,6 +66,11 @@ final class PackageInjector
         return $injector;
     }
 
+    /**
+     * Return an injector instance with the given override module
+     *
+     * This is useful for testing purposes, where you want to override a module with a mock or stub
+     */
     public static function factory(AbstractAppMeta $meta, string $context, AbstractModule|null $overrideModule = null): InjectorInterface
     {
         $scriptDir = $meta->tmpDir . '/di';
@@ -83,6 +89,18 @@ final class PackageInjector
         }
 
         $injector->getInstance(AppInterface::class);
+
+        return $injector;
+    }
+
+    private static function getInjector(AbstractAppMeta $meta, string $context, AdapterInterface $cache, string $injectorId): InjectorInterface
+    {
+        $injector = self::factory($meta, $context);
+        $cache->save($cache->getItem($injectorId)->set([$injector, new FileUpdate($meta)]));
+        // Check the cache
+        if ($cache->getItem($injectorId)->get() === null) {
+            trigger_error('Failed to verify the injector cache. See https://github.com/bearsunday/BEAR.Package/issues/418', E_USER_WARNING);
+        }
 
         return $injector;
     }
