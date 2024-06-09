@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace BEAR\Package\Provide\Representation;
 
-use BEAR\Package\AppInjector;
+use BEAR\Package\Injector;
 use BEAR\Resource\ResourceInterface;
 use BEAR\Resource\ResourceObject;
 use FakeVendor\HelloWorld\Resource\App\Post;
 use PHPUnit\Framework\TestCase;
 
 use function assert;
+use function dirname;
 
 class CreatedResourceRendererTest extends TestCase
 {
@@ -19,7 +20,8 @@ class CreatedResourceRendererTest extends TestCase
 
     protected function setUp(): void
     {
-        $resource = (new AppInjector('FakeVendor\HelloWorld', 'hal-app'))->getInstance(ResourceInterface::class);
+        $appDIr = dirname(__DIR__, 2) . '/Fake/fake-app';
+        $resource = Injector::getInstance('FakeVendor\HelloWorld', 'hal-app', $appDIr)->getInstance(ResourceInterface::class);
         assert($resource instanceof ResourceInterface);
         $post = $resource->post('app://self/post');
         assert($post instanceof Post);

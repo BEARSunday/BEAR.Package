@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace BEAR\Package\Provide\Representation;
 
-use BEAR\Package\AppInjector;
 use BEAR\Package\Exception\LocationHeaderRequestException;
+use BEAR\Package\Injector;
 use BEAR\Resource\HalLinker;
 use BEAR\Resource\HalRenderer;
 use BEAR\Resource\ResourceInterface;
@@ -15,6 +15,7 @@ use FakeVendor\HelloWorld\Resource\App\Task;
 use PHPUnit\Framework\TestCase;
 
 use function assert;
+use function dirname;
 use function restore_error_handler;
 use function set_error_handler;
 
@@ -24,9 +25,8 @@ class HalRendererTest extends TestCase
 
     protected function setUp(): void
     {
-        $resource = (new AppInjector('FakeVendor\HelloWorld', 'hal-app'))->getInstance(ResourceInterface::class);
-        assert($resource instanceof ResourceInterface);
-        $this->resource = $resource;
+        $appDIr = dirname(__DIR__, 2) . '/Fake/fake-app';
+        $this->resource = Injector::getInstance('FakeVendor\HelloWorld', 'hal-app', $appDIr)->getInstance(ResourceInterface::class);
     }
 
     public function testRender(): void
