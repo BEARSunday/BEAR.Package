@@ -1,0 +1,14 @@
+# Alerts only major updates for Packagist (Composer)
+#
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "composer" # Specify the correct package ecosystem for PHP
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*" # Ignore all dependencies for specific update types
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
