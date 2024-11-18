@@ -70,19 +70,22 @@
         "bin/bear.compile.php"
     ],
     "scripts": {
+        "bin": "echo 'no bin command.'",
+        "post-install-cmd": ["@composer bin all install --ansi"],
+        "post-update-cmd": ["@composer bin all install --ansi"],
         "test": ["phpunit"],
         "tests": ["@cs", "@sa", "@test"],
         "coverage": ["php -dzend_extension=xdebug.so -dxdebug.mode=coverage ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage"],
         "pcov": ["php -dextension=pcov.so -d pcov.enabled=1 ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage  --coverage-clover=coverage.xml"],
-        "cs": ["phpcs"],
-        "cs-fix": ["phpcbf src tests"],
-        "clean": ["phpstan clear-result-cache", "psalm --clear-cache", "rm -rf tests/tmp/*.php"],
-        "sa": ["psalm --show-info=true", "phpstan analyse --no-ansi --no-progress -c phpstan.neon --memory-limit=-1"],
-        "metrics": ["phpmetrics --report-html=build/metrics --exclude=Exception --junit=build/junit.xml src"],
-        "phpmd": ["phpmd --exclude src/Annotation src text ./phpmd.xml"],
+        "cs": ["./vendor-bin/tools/vendor/bin/phpcs"],
+        "cs-fix": ["./vendor-bin/tools/vendor/bin/phpcbf src tests"],
+        "clean": ["./vendor-bin/tools/vendor/bin/phpstan ./vendor-bin/tools/vendor/bin/clear-result-cache", "./vendor-bin/tools/vendor/bin/psalm --clear-cache", "rm -rf tests/tmp/*.php"],
+        "sa": ["./vendor-bin/tools/vendor/bin/psalm --show-info=true", "./vendor-bin/tools/vendor/bin/phpstan analyse --no-ansi --no-progress -c phpstan.neon --memory-limit=-1"],
+        "metrics": ["./vendor-bin/tools/vendor/bin/phpmetrics --report-html=build/metrics --exclude=Exception --junit=build/junit.xml src"],
+        "phpmd": ["./vendor-bin/tools/vendor/bin/phpmd --exclude src/Annotation src text ./phpmd.xml"],
         "build": ["@cs", "@sa", "@pcov", "@metrics"],
         "compile": "./bin/bear.compile FakeVendor\\\\HelloWorld prod-app ./tests/Fake/fake-app",
-        "baseline": "phpstan analyse -configuration -c phpstan.neon --generate-baseline  --memory-limit=-1 ;psalm --set-baseline=psalm-baseline.xml"
+        "baseline": "./vendor-bin/tools/vendor/bin/phpstan analyse -configuration -c phpstan.neon --generate-baseline  --memory-limit=-1 && ./vendor-bin/tools/vendor/bin/psalm --set-baseline=psalm-baseline.xml"
     },
     "config": {
         "allow-plugins": {
@@ -92,8 +95,8 @@
     },
     "extra": {
         "bamarni-bin": {
-            "bin-links": true,
-            "forward-command": true
+            "bin-links": false,
+            "forward-command": false
         }
     }
 }
