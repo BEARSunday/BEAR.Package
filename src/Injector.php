@@ -24,7 +24,7 @@ final class Injector
     public static function getInstance(string $appName, string $context, string $appDir, CacheInterface|null $cache = null): InjectorInterface
     {
         $meta = new Meta($appName, $context, $appDir);
-        $cacheNamespace = str_replace('/', '_', $appDir) . $context;
+        $cacheNamespace = str_replace('\\', '_', $appName) . $context;
         $cache ??= (new LocalCacheProvider($meta->tmpDir . '/injector', $cacheNamespace))->get();
 
         return PackageInjector::getInstance($meta, $context, $cache);
