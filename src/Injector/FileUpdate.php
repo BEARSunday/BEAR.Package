@@ -19,7 +19,9 @@ use function filemtime;
 use function glob;
 use function max;
 use function preg_quote;
+use function rtrim;
 use function sprintf;
+use function str_replace;
 
 final class FileUpdate
 {
@@ -29,11 +31,19 @@ final class FileUpdate
 
     public function __construct(AbstractAppMeta $meta)
     {
-        $basePath = preg_quote($meta->appDir . '/', '/');
-        $srcPath = $basePath . 'src\/';
-        $varPath = $basePath . 'var\/';
-        $this->srcRegex = sprintf('/^(?!.*(%s)).*?$/', $srcPath . 'Resource');
-        $this->varRegex = sprintf('/^(?!.*(%s|%s|%s|%s)).*?$/', $varPath . 'tmp', $varPath . 'log', $varPath . 'templates', $varPath . 'phinx');
+        $normalizedAppDir = str_replace('\\', '/', rtrim($meta->appDir, '\\/')) . '/';
+        $quotedAppDir = preg_quote($normalizedAppDir, '#');
+        $this->srcRegex = sprintf(
+            '#^(?!.*(%ssrc/Resource)).*?$#m',
+            $quotedAppDir,
+        );
+        $this->varRegex = sprintf(
+            '#^(?!.*(%s|%s|%s|%s)).*?$#m',
+            $quotedAppDir . 'var/tmp',
+            $quotedAppDir . 'var/log',
+            $quotedAppDir . 'var/templates',
+            $quotedAppDir . 'var/phinx',
+        );
         $this->updateTime = $this->getLatestUpdateTime($meta);
     }
 
