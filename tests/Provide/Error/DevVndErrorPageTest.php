@@ -35,14 +35,24 @@ class DevVndErrorPageTest extends TestCase
         "exceptions": "LogicException(bear)"
     }';
 
-        $actualArray = json_decode($actual, true);
-        $expectedArray = json_decode($expected, true);
+        $actualJson = json_decode($actual, true);
+        $expectedJson = json_decode($expected, true);
 
-        $this->assertSame($expectedArray['message'], $actualArray['message']);
-        $this->assertSame($expectedArray['logref'], $actualArray['logref']);
-        $this->assertSame($expectedArray['request'], $actualArray['request']);
-        $this->assertSame($expectedArray['exceptions'], $actualArray['exceptions']);
+        $this->assertIsArray($actualJson);
+        $this->assertIsArray($expectedJson);
 
-        $this->assertArrayHasKey('file', $actualArray);
+        /** @var array{message: string, logref: string, request: string, exceptions: string, file: string} $actualJson */
+        /** @var array{message: string, logref: string, request: string, exceptions: string} $expectedJson */
+
+        $this->assertArrayHasKey('message', $actualJson);
+        $this->assertArrayHasKey('logref', $actualJson);
+        $this->assertArrayHasKey('request', $actualJson);
+        $this->assertArrayHasKey('exceptions', $actualJson);
+        $this->assertArrayHasKey('file', $actualJson);
+
+        $this->assertSame($expectedJson['message'], $actualJson['message']);
+        $this->assertSame($expectedJson['logref'], $actualJson['logref']);
+        $this->assertSame($expectedJson['request'], $actualJson['request']);
+        $this->assertSame($expectedJson['exceptions'], $actualJson['exceptions']);
     }
 }

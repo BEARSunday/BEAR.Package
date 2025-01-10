@@ -35,7 +35,11 @@ class CliResponderTest extends TestCase
         $ro->headers['X-BEAR-VERSION'] = 'Sunday';
         ob_start();
         $ro->transfer($this->responder, []);
-        $actual = ob_get_clean();
+
+        $output = ob_get_clean();
+        $this->assertNotFalse($output);
+        /** @var non-empty-string $output */
+
         $expect = <<< 'EOT'
 200 OK
 Content-Type: application/json
@@ -43,6 +47,6 @@ X-BEAR-VERSION: Sunday
 
 {"greeting":"Hello BEAR.Sunday"}
 EOT;
-        $this->assertNormalizedStringEquals($expect, $actual);
+        $this->assertNormalizedStringEquals($expect, $output);
     }
 }
