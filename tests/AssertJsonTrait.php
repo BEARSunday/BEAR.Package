@@ -47,7 +47,7 @@ trait AssertJsonTrait
             Assert::fail($message ?: 'Invalid JSON: ' . json_last_error_msg());
         }
 
-        // Normalize and compare
+        // Normalize and compare using assertEquals instead of assertSame
         $normalizedExpected = self::normalizeJson($expected);
         $normalizedActual = self::normalizeJson($actual);
 

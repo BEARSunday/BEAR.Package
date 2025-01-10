@@ -155,7 +155,7 @@ class HalRendererTest extends TestCase
     "GET": []
 }
 ';
-        $this->assertSame($expect, $result);
+        $this->assertSameJson($expect, $result);
     }
 
     public function testHalRendererNoParam(): void
@@ -195,7 +195,7 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSame($expected, $hal);
+        $this->assertSameJson($expected, $hal);
         $location = $ro->headers['Location'];
         $expected = '/task/10';
         $this->assertSame($expected, $location);

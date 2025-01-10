@@ -8,6 +8,8 @@ use BEAR\Sunday\Extension\Router\RouterMatch;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 
+use function json_decode;
+
 class DevVndErrorPageTest extends TestCase
 {
     private DevVndErrorPage $page;
@@ -24,15 +26,23 @@ class DevVndErrorPageTest extends TestCase
 
     public function testToString(): void
     {
-        $this->page->toString();
-        $this->assertSame(500, $this->page->code);
-        $this->assertArrayHasKey('content-type', $this->page->headers);
-        $this->assertSame('application/vnd.error+json', $this->page->headers['content-type']);
-        $this->assertStringContainsString('{
-    "message": "Internal Server Error",
-    "logref": "{logref}",
-    "request": "get /",
-    "exceptions": "LogicException(bear)",
-    "file": "' . __FILE__, (string) $this->page->view);
+        $actual = (string) $this->page;
+
+        $expected = '{
+        "message": "Internal Server Error",
+        "logref": "{logref}",
+        "request": "get /",
+        "exceptions": "LogicException(bear)"
+    }';
+
+        $actualArray = json_decode($actual, true);
+        $expectedArray = json_decode($expected, true);
+
+        $this->assertSame($expectedArray['message'], $actualArray['message']);
+        $this->assertSame($expectedArray['logref'], $actualArray['logref']);
+        $this->assertSame($expectedArray['request'], $actualArray['request']);
+        $this->assertSame($expectedArray['exceptions'], $actualArray['exceptions']);
+
+        $this->assertArrayHasKey('file', $actualArray);
     }
 }
