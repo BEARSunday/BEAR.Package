@@ -29,7 +29,12 @@ trait AssertJsonTrait
      * @param string|array $actual   Actual value (JSON string or array)
      * @param string       $message  Optional failure message
      */
-    public static function assertSameJson(string|array $expected, string|array $actual, string $message = ''): void
+
+    /**
+     * @param array<mixed>|string|null $expected
+     * @param array<mixed>|string|null $actual
+     */
+    public static function assertSameJson(string|array|null $expected, string|array|null $actual, string $message = ''): void
     {
         // Normalize line endings and decode if strings
         if (is_string($expected)) {
@@ -58,7 +63,11 @@ trait AssertJsonTrait
         );
     }
 
-    public function assertNormalizedStringEquals(string $expected, string $actual, string $message = ''): void
+    /**
+     * @param non-empty-string       $expected
+     * @param non-empty-string|false $actual
+     */
+    public function assertNormalizedStringEquals(string $expected, string|false $actual, string $message = ''): void
     {
         Assert::assertEquals(
             self::normalizeString($expected),
@@ -74,10 +83,16 @@ trait AssertJsonTrait
      *
      * @return array Normalized array
      */
-    private static function normalizeJson(array $data): array
+
+    /**
+     * @param array<mixed>|mixed $data
+     *
+     * @return array<mixed>
+     */
+    private static function normalizeJson(mixed $data): array
     {
         if (! is_array($data)) {
-            return $data;
+            return (array) $data;
         }
 
         $normalized = [];
@@ -100,8 +115,12 @@ trait AssertJsonTrait
     /**
      * Normalize line endings for both HTTP and JSON responses
      */
-    private static function normalizeString(string $string): string
+    private static function normalizeString(string|false $string): string
     {
+        if ($string === false) {
+            return '';
+        }
+
         return str_replace(["\r\n", "\r"], "\n", $string);
     }
 }
