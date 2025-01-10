@@ -58,6 +58,15 @@ trait AssertJsonTrait
         );
     }
 
+    public function assertNormalizedStringEquals(string $expected, string $actual, string $message = ''): void
+    {
+        Assert::assertEquals(
+            self::normalizeString($expected),
+            self::normalizeString($actual),
+            $message,
+        );
+    }
+
     /**
      * Normalizes JSON arrays by sorting numeric arrays and recursively processing nested structures
      *
@@ -86,5 +95,13 @@ trait AssertJsonTrait
         }
 
         return $normalized;
+    }
+
+    /**
+     * Normalize line endings for both HTTP and JSON responses
+     */
+    private static function normalizeString(string $string): string
+    {
+        return str_replace(["\r\n", "\r"], "\n", $string);
     }
 }
