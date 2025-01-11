@@ -8,16 +8,13 @@ use BEAR\AppMeta\AbstractAppMeta;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use RecursiveRegexIterator;
-use RegexIterator;
-use SplFileInfo;
 
 use function array_map;
-use function assert;
 use function file_exists;
 use function filemtime;
 use function glob;
 use function max;
+use function preg_match;
 use function preg_quote;
 use function rtrim;
 use function sprintf;
@@ -75,28 +72,22 @@ final class FileUpdate
     /** @return list<string> */
     private function getFiles(string $path, string $regex): array
     {
-        // 正規表現用にパスを正規化
-        $normalizedPath = str_replace('\\', '/', $path);
-
-        // DirectoryIterator用にはWindowsネイティブパスを使用
         $iteratorPath = str_replace('/', DIRECTORY_SEPARATOR, $path);
-
-        $iterator = new RegexIterator(
-            new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator(
-                    $iteratorPath,
-                    FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::SKIP_DOTS,
-                ),
-                RecursiveIteratorIterator::LEAVES_ONLY,
-            ),
-            $regex,
-            RecursiveRegexIterator::MATCH,
+        $rdi = new RecursiveDirectoryIterator(
+            $iteratorPath,
+            FilesystemIterator::CURRENT_AS_FILEINFO
+            | FilesystemIterator::KEY_AS_PATHNAME
+            | FilesystemIterator::SKIP_DOTS,
         );
+        $rdiIterator = new RecursiveIteratorIterator($rdi, RecursiveIteratorIterator::LEAVES_ONLY);
 
         $files = [];
-        foreach ($iterator as $fileName => $fileInfo) {
-            $normalizedFileName = str_replace('\\', '/', $fileName);
-            assert($fileInfo instanceof SplFileInfo);
+        foreach ($rdiIterator as $key => $fileInfo) {
+            $normalizedFileName = str_replace('\\', '/', $key);
+            if (! preg_match($regex, $normalizedFileName)) {
+                continue;
+            }
+
             if (! $fileInfo->isFile() || $fileInfo->getFilename()[0] === '.') {
                 continue;
             }
