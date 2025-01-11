@@ -22,6 +22,7 @@ use function preg_quote;
 use function rtrim;
 use function sprintf;
 use function str_replace;
+use function var_dump;
 
 use const DIRECTORY_SEPARATOR;
 
@@ -33,18 +34,14 @@ final class FileUpdate
 
     public function __construct(AbstractAppMeta $meta)
     {
-        $normalizedAppDir = str_replace('\\', '/', rtrim($meta->appDir, '\\/')) . '/';
-        $quotedAppDir = preg_quote($normalizedAppDir, '#');
-        $this->srcRegex = sprintf(
-            '#^(?!.*(%ssrc/Resource)).*?$#m',
-            $quotedAppDir,
-        );
+        $normalizedAppDir = str_replace(['\\', ':'], ['/', ''], rtrim($meta->appDir, '\\/')) . '/';
+        $this->srcRegex = sprintf('#^(?!.*(%ssrc/Resource)).*?$#m', $normalizedAppDir);
         $this->varRegex = sprintf(
-            '#^(?!.*(%s|%s|%s|%s)).*?$#m',
-            $quotedAppDir . 'var/tmp',
-            $quotedAppDir . 'var/log',
-            $quotedAppDir . 'var/templates',
-            $quotedAppDir . 'var/phinx',
+            '#^(?!.*(%s|%s|%s|%s)).*$#',
+            preg_quote($normalizedAppDir . 'var/tmp', '#'),
+            preg_quote($normalizedAppDir . 'var/log', '#'),
+            preg_quote($normalizedAppDir . 'var/templates', '#'),
+            preg_quote($normalizedAppDir . 'var/phinx', '#'),
         );
         $this->updateTime = $this->getLatestUpdateTime($meta);
     }
@@ -92,6 +89,8 @@ final class FileUpdate
 
         $files = [];
         foreach ($iterator as $fileName => $fileInfo) {
+            $normalizedFileName = str_replace('\\', '/', $fileName);
+            var_dump($normalizedFileName);
             assert($fileInfo instanceof SplFileInfo);
             if (! $fileInfo->isFile() || $fileInfo->getFilename()[0] === '.') {
                 // @codeCoverageIgnoreStart
@@ -99,7 +98,7 @@ final class FileUpdate
                 // @codeCoverageIgnoreEnd
             }
 
-            $files[] = $fileName;
+            $files[] = $normalizedFileName;
         }
 
         return $files; // @phpstan-ignore-line
