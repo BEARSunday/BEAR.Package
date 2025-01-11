@@ -17,11 +17,20 @@ class FileUpdateTest extends TestCase
     {
         $meta = new Meta('FakeVendor\HelloWorld', 'app');
         $bindingsUpdate = new FileUpdate($meta);
+
+        $initialTime = $bindingsUpdate->getLatestUpdateTime($meta);
+        var_dump("Initial time: " . $initialTime);
+
         $isNotUpdated = $bindingsUpdate->isNotUpdated($meta);
         $this->assertTrue($isNotUpdated);
-        // touch normalized path
-        $normalizedPath = str_replace('\\', '/', dirname(__DIR__) . '/Fake/fake-app/src/Module/AppModule.php');
-        touch($normalizedPath);
+
+        // パスを正規化してtouchを実行
+        $path = str_replace('/', DIRECTORY_SEPARATOR, dirname(__DIR__) . '/Fake/fake-app/src/Module/AppModule.php');
+        touch($path);
+
+        $newTime = $bindingsUpdate->getLatestUpdateTime($meta);
+        var_dump("New time: " . $newTime);
+
         $isNotUpdated = $bindingsUpdate->isNotUpdated($meta);
         $this->assertFalse($isNotUpdated);
     }
