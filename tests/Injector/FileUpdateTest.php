@@ -28,6 +28,10 @@ class FileUpdateTest extends TestCase
         $path = str_replace('/', DIRECTORY_SEPARATOR, dirname(__DIR__) . '/Fake/fake-app/src/Module/AppModule.php');
         touch($path);
 
+        if (PHP_OS_FAMILY === 'Windows') {
+            sleep(1);
+        }
+
         $newTime = $bindingsUpdate->getLatestUpdateTime($meta);
         var_dump("New time: " . $newTime);
 
