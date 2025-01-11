@@ -23,6 +23,8 @@ use function rtrim;
 use function sprintf;
 use function str_replace;
 
+use const DIRECTORY_SEPARATOR;
+
 final class FileUpdate
 {
     private int $updateTime;
@@ -54,11 +56,11 @@ final class FileUpdate
 
     public function getLatestUpdateTime(AbstractAppMeta $meta): int
     {
-        $srcFiles = $this->getFiles($meta->appDir . '/src', $this->srcRegex);
-        $varFiles = $this->getFiles($meta->appDir . '/var', $this->varRegex);
-        $envFiles = (array) glob($meta->appDir . '/.env*');
+        $srcFiles = $this->getFiles($meta->appDir . DIRECTORY_SEPARATOR . 'src', $this->srcRegex);
+        $varFiles = $this->getFiles($meta->appDir . DIRECTORY_SEPARATOR . 'var', $this->varRegex);
+        $envFiles = (array) glob($meta->appDir . DIRECTORY_SEPARATOR . '.env*');
         $scanFiles = [...$srcFiles, ...$varFiles, ...$envFiles];
-        $composerLock = $meta->appDir . '/composer.lock';
+        $composerLock = $meta->appDir . DIRECTORY_SEPARATOR . 'composer.lock';
         if (file_exists($composerLock)) {
             $scanFiles[] = $composerLock;
         }
