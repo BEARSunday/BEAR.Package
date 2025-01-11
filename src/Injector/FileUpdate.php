@@ -71,13 +71,16 @@ final class FileUpdate
     /** @return list<string> */
     private function getFiles(string $path, string $regex): array
     {
-        // パスを正規化
+        // 正規表現用にパスを正規化
         $normalizedPath = str_replace('\\', '/', $path);
+
+        // DirectoryIterator用にはWindowsネイティブパスを使用
+        $iteratorPath = str_replace('/', DIRECTORY_SEPARATOR, $path);
 
         $iterator = new RegexIterator(
             new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator(
-                    $normalizedPath,
+                    $iteratorPath,
                     FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::SKIP_DOTS,
                 ),
                 RecursiveIteratorIterator::LEAVES_ONLY,
@@ -91,9 +94,7 @@ final class FileUpdate
             $normalizedFileName = str_replace('\\', '/', $fileName);
             assert($fileInfo instanceof SplFileInfo);
             if (! $fileInfo->isFile() || $fileInfo->getFilename()[0] === '.') {
-                // @codeCoverageIgnoreStart
                 continue;
-                // @codeCoverageIgnoreEnd
             }
 
             $files[] = $normalizedFileName;
