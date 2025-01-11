@@ -51,9 +51,17 @@ final class FileUpdate
     public function getLatestUpdateTime(AbstractAppMeta $meta): int
     {
         $srcFiles = $this->getFiles($meta->appDir . DIRECTORY_SEPARATOR . 'src', $this->srcRegex);
+        var_dump('srcFiles:', $srcFiles);  // この値を確認
+
         $varFiles = $this->getFiles($meta->appDir . DIRECTORY_SEPARATOR . 'var', $this->varRegex);
+        var_dump('varFiles:', $varFiles);  // この値も確認
+
         $envFiles = (array) glob($meta->appDir . DIRECTORY_SEPARATOR . '.env*');
+        var_dump('envFiles:', $envFiles);  // この値も確認
+
         $scanFiles = [...$srcFiles, ...$varFiles, ...$envFiles];
+        var_dump('scanFiles:', $scanFiles); // 最終的なファイルリスト
+
         $composerLock = $meta->appDir . DIRECTORY_SEPARATOR . 'composer.lock';
         if (file_exists($composerLock)) {
             $scanFiles[] = $composerLock;

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 use function dirname;
 use function touch;
+use function var_dump;
 
 class FileUpdateTest extends TestCase
 {
@@ -16,11 +17,12 @@ class FileUpdateTest extends TestCase
     {
         $meta = new Meta('FakeVendor\HelloWorld', 'app');
         $bindingsUpdate = new FileUpdate($meta);
-        $isUpdated = $bindingsUpdate->isNotUpdated($meta);
-        $this->assertTrue($isUpdated);
+        var_dump($bindingsUpdate);
+        $isNotUpdated = $bindingsUpdate->isNotUpdated($meta);
+        $this->assertTrue($isNotUpdated);
 
         touch(dirname(__DIR__) . '/Fake/fake-app/src/Module/AppModule.php');
-        $isUpdated = $bindingsUpdate->isNotUpdated($meta);
-        $this->assertFalse($isUpdated);
+        $isNotUpdated = $bindingsUpdate->isNotUpdated($meta);
+        $this->assertFalse($isNotUpdated);
     }
 }
