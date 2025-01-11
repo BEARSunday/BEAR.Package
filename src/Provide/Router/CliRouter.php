@@ -150,8 +150,9 @@ class CliRouter implements RouterInterface
 
         // @codeCoverageIgnoreStart
         exit($status);
-        // @codeCoverageIgnoreEnd
     }
+
+    // @codeCoverageIgnoreEnd
 
     /**
      * Return StdIn in PUT, PATCH or DELETE
