@@ -8,11 +8,14 @@ use BEAR\AppMeta\AbstractAppMeta;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 
 use function array_map;
+use function assert;
 use function file_exists;
 use function filemtime;
 use function glob;
+use function is_string;
 use function max;
 use function preg_match;
 use function preg_quote;
@@ -69,7 +72,11 @@ final class FileUpdate
         return (string) filemtime($filename);
     }
 
-    /** @return list<string> */
+    /**
+     * @return list<string>
+     *
+     * @psalm-assert non-empty-string $regex
+     */
     private function getFiles(string $path, string $regex): array
     {
         $iteratorPath = str_replace('/', DIRECTORY_SEPARATOR, $path);
@@ -81,9 +88,14 @@ final class FileUpdate
         );
         $rdiIterator = new RecursiveIteratorIterator($rdi, RecursiveIteratorIterator::LEAVES_ONLY);
 
+        /** @var list<string> $files */
         $files = [];
         foreach ($rdiIterator as $key => $fileInfo) {
+            assert(is_string($key) && $key !== '');
+            assert($fileInfo instanceof SplFileInfo);
+            /** @var non-empty-string $normalizedFileName */
             $normalizedFileName = str_replace('\\', '/', $key);
+            assert($regex !== '');
             if (! preg_match($regex, $normalizedFileName)) {
                 continue;
             }

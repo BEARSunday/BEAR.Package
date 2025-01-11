@@ -32,6 +32,6 @@ class ProdVndErrorPageTest extends TestCase
     "message": "Internal Server Error",
     "logref": "{logref}"
 }
-', $this->page->view);
+', (string) $this->page->view);
     }
 }

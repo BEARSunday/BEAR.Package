@@ -52,7 +52,7 @@ class CreatedResourceRendererTest extends TestCase
 }
 ';
         $this->assertJsonStringEqualsJsonString($expected, $view);
-        $this->assertJsonStringEqualsJsonString($expected, $this->ro->view);
+        $this->assertJsonStringEqualsJsonString($expected, (string) $this->ro->view);
 
         return $this->ro;
     }
