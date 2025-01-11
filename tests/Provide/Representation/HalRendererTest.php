@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BEAR\Package\Provide\Representation;
 
-use BEAR\Package\AssertJsonTrait;
 use BEAR\Package\Exception\LocationHeaderRequestException;
 use BEAR\Package\Injector;
 use BEAR\Resource\HalLinker;
@@ -22,8 +21,6 @@ use function set_error_handler;
 
 class HalRendererTest extends TestCase
 {
-    use AssertJsonTrait;
-
     private ResourceInterface $resource;
 
     protected function setUp(): void
@@ -53,7 +50,7 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expect, $result);
+        $this->assertJsonStringEqualsJsonString($expect, $result);
     }
 
     public function testRenderPost(): void
@@ -73,7 +70,7 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expect, $result);
+        $this->assertJsonStringEqualsJsonString($expect, $result);
     }
 
     public function testRenderEmbed(): void
@@ -106,7 +103,7 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expect, $result);
+        $this->assertJsonStringEqualsJsonString($expect, $result);
     }
 
     public function testNoEmbededLinksWhenSchemaIsDifferent(): void
@@ -128,7 +125,7 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expect, $result);
+        $this->assertJsonStringEqualsJsonString($expect, $result);
     }
 
     public function testRenderScalar(): void
@@ -144,7 +141,7 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expect, $result);
+        $this->assertJsonStringEqualsJsonString($expect, $result);
     }
 
     public function testOptions(): void
@@ -155,7 +152,7 @@ class HalRendererTest extends TestCase
     "GET": []
 }
 ';
-        $this->assertSameJson($expect, $result);
+        $this->assertJsonStringEqualsJsonString($expect, $result);
     }
 
     public function testHalRendererNoParam(): void
@@ -175,7 +172,7 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expected, $hal);
+        $this->assertJsonStringEqualsJsonString($expected, $hal);
     }
 
     public function testHalRendererWithParam(): void
@@ -195,7 +192,7 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expected, $hal);
+        $this->assertJsonStringEqualsJsonString($expected, $hal);
         $location = $ro->headers['Location'];
         $expected = '/task/10';
         $this->assertSame($expected, $location);
@@ -225,7 +222,7 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expect, $result);
+        $this->assertJsonStringEqualsJsonString($expect, $result);
         $this->assertSame(201, $ro->code);
         $this->assertSame('/post?id=10', $ro->headers['Location']);
     }
@@ -252,7 +249,7 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expect, $result);
+        $this->assertJsonStringEqualsJsonString($expect, $result);
     }
 
     public function testCreatedResourceInvaliUri(): void
@@ -301,6 +298,6 @@ class HalRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expect, $result);
+        $this->assertJsonStringEqualsJsonString($expect, $result);
     }
 }

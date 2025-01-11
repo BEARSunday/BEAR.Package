@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace BEAR\Package\Provide\Error;
 
-use BEAR\Package\AssertJsonTrait;
 use BEAR\Sunday\Extension\Router\RouterMatch;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 
 class ProdVndErrorPageTest extends TestCase
 {
-    use AssertJsonTrait;
-
     private ProdVndErrorPage $page;
 
     protected function setUp(): void
@@ -31,7 +28,7 @@ class ProdVndErrorPageTest extends TestCase
         $this->assertSame(500, $this->page->code);
         $this->assertArrayHasKey('content-type', $this->page->headers);
         $this->assertSame('application/vnd.error+json', $this->page->headers['content-type']);
-        $this->assertSameJson('{
+        $this->assertJsonStringEqualsJsonString('{
     "message": "Internal Server Error",
     "logref": "{logref}"
 }

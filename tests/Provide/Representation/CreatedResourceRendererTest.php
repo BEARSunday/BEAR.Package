@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BEAR\Package\Provide\Representation;
 
-use BEAR\Package\AssertJsonTrait;
 use BEAR\Package\Injector;
 use BEAR\Resource\ResourceInterface;
 use BEAR\Resource\ResourceObject;
@@ -16,8 +15,6 @@ use function dirname;
 
 class CreatedResourceRendererTest extends TestCase
 {
-    use AssertJsonTrait;
-
     private CreatedResourceRenderer $renderer;
     private Post $ro;
 
@@ -54,8 +51,8 @@ class CreatedResourceRendererTest extends TestCase
     }
 }
 ';
-        $this->assertSameJson($expected, $view);
-        $this->assertSameJson($expected, $this->ro->view);
+        $this->assertJsonStringEqualsJsonString($expected, $view);
+        $this->assertJsonStringEqualsJsonString($expected, $this->ro->view);
 
         return $this->ro;
     }

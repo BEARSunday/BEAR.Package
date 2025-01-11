@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BEAR\Package\Provide\Error;
 
 use BEAR\AppMeta\AppMeta;
-use BEAR\Package\AssertJsonTrait;
 use BEAR\Package\FakeLogger;
 use BEAR\Package\Provide\Transfer\FakeHttpResponder;
 use BEAR\Sunday\Extension\Router\RouterMatch;
@@ -19,8 +18,6 @@ use function assert;
 
 class ErrorHandlerTest extends TestCase
 {
-    use AssertJsonTrait;
-
     private ErrorHandler $handler;
     private FakeHttpResponder $responder;
     private FakeLogger $logger;
@@ -53,7 +50,7 @@ class ErrorHandlerTest extends TestCase
         $handler->transfer();
         $this->assertSame(500, FakeHttpResponder::$code);
         $this->assertSame(['content-type' => 'application/vnd.error+json'], FakeHttpResponder::$headers);
-        $this->assertSameJson('{
+        $this->assertJsonStringEqualsJsonString('{
     "message": "Internal Server Error",
     "logref": "{logref}"
 }

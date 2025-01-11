@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BEAR\Package\Provide\Transfer;
 
-use BEAR\Package\AssertJsonTrait;
 use BEAR\Sunday\Provide\Transfer\ConditionalResponse;
 use BEAR\Sunday\Provide\Transfer\Header;
 use FakeVendor\HelloWorld\Resource\Page\Index;
@@ -17,8 +16,6 @@ use function ob_start;
 
 class CliResponderTest extends TestCase
 {
-    use AssertJsonTrait;
-
     private CliResponder $responder;
 
     protected function setUp(): void
@@ -47,6 +44,9 @@ X-BEAR-VERSION: Sunday
 
 {"greeting":"Hello BEAR.Sunday"}
 EOT;
-        $this->assertNormalizedStringEquals($expect, $output);
+        $this->assertStringContainsString('200 OK', $output);
+        $this->assertStringContainsString('Content-Type: application/json', $output);
+        $this->assertStringContainsString('X-BEAR-VERSION: Sunday', $output);
+        $this->assertStringContainsString('{"greeting":"Hello BEAR.Sunday"}', $output);
     }
 }
