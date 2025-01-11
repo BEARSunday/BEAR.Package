@@ -8,6 +8,8 @@ use BEAR\Sunday\Extension\Router\RouterMatch;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 
+use function json_decode;
+
 class DevVndErrorPageTest extends TestCase
 {
     private DevVndErrorPage $page;
@@ -24,15 +26,33 @@ class DevVndErrorPageTest extends TestCase
 
     public function testToString(): void
     {
-        $this->page->toString();
-        $this->assertSame(500, $this->page->code);
-        $this->assertArrayHasKey('content-type', $this->page->headers);
-        $this->assertSame('application/vnd.error+json', $this->page->headers['content-type']);
-        $this->assertStringContainsString('{
-    "message": "Internal Server Error",
-    "logref": "{logref}",
-    "request": "get /",
-    "exceptions": "LogicException(bear)",
-    "file": "' . __FILE__, (string) $this->page->view);
+        $actual = (string) $this->page;
+
+        $expected = '{
+        "message": "Internal Server Error",
+        "logref": "{logref}",
+        "request": "get /",
+        "exceptions": "LogicException(bear)"
+    }';
+
+        $actualJson = json_decode($actual, true);
+        $expectedJson = json_decode($expected, true);
+
+        $this->assertIsArray($actualJson);
+        $this->assertIsArray($expectedJson);
+
+        /** @var array{message: string, logref: string, request: string, exceptions: string, file: string} $actualJson */
+        /** @var array{message: string, logref: string, request: string, exceptions: string} $expectedJson */
+
+        $this->assertArrayHasKey('message', $actualJson);
+        $this->assertArrayHasKey('logref', $actualJson);
+        $this->assertArrayHasKey('request', $actualJson);
+        $this->assertArrayHasKey('exceptions', $actualJson);
+        $this->assertArrayHasKey('file', $actualJson);
+
+        $this->assertSame($expectedJson['message'], $actualJson['message']);
+        $this->assertSame($expectedJson['logref'], $actualJson['logref']);
+        $this->assertSame($expectedJson['request'], $actualJson['request']);
+        $this->assertSame($expectedJson['exceptions'], $actualJson['exceptions']);
     }
 }

@@ -8,8 +8,6 @@ use BEAR\AppMeta\AbstractAppMeta;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use RecursiveRegexIterator;
-use RegexIterator;
 use SplFileInfo;
 
 use function array_map;
@@ -17,9 +15,15 @@ use function assert;
 use function file_exists;
 use function filemtime;
 use function glob;
+use function is_string;
 use function max;
+use function preg_match;
 use function preg_quote;
+use function rtrim;
 use function sprintf;
+use function str_replace;
+
+use const DIRECTORY_SEPARATOR;
 
 final class FileUpdate
 {
@@ -29,11 +33,16 @@ final class FileUpdate
 
     public function __construct(AbstractAppMeta $meta)
     {
-        $basePath = preg_quote($meta->appDir . '/', '/');
-        $srcPath = $basePath . 'src\/';
-        $varPath = $basePath . 'var\/';
-        $this->srcRegex = sprintf('/^(?!.*(%s)).*?$/', $srcPath . 'Resource');
-        $this->varRegex = sprintf('/^(?!.*(%s|%s|%s|%s)).*?$/', $varPath . 'tmp', $varPath . 'log', $varPath . 'templates', $varPath . 'phinx');
+        $normalizedAppDir = str_replace('\\', '/', rtrim($meta->appDir, '\\/')) . '/';
+        $this->srcRegex = sprintf('#^(?!.*(%ssrc/Resource)).*?$#m', $normalizedAppDir);
+        $this->varRegex = sprintf(
+            '#^(?!%s(?:var%stmp|var%slog|var%stemplates|var%sphinx)).*$#',
+            preg_quote($normalizedAppDir, '#'),
+            preg_quote(DIRECTORY_SEPARATOR, '#'),
+            preg_quote(DIRECTORY_SEPARATOR, '#'),
+            preg_quote(DIRECTORY_SEPARATOR, '#'),
+            preg_quote(DIRECTORY_SEPARATOR, '#'),
+        );
         $this->updateTime = $this->getLatestUpdateTime($meta);
     }
 
@@ -44,11 +53,11 @@ final class FileUpdate
 
     public function getLatestUpdateTime(AbstractAppMeta $meta): int
     {
-        $srcFiles = $this->getFiles($meta->appDir . '/src', $this->srcRegex);
-        $varFiles = $this->getFiles($meta->appDir . '/var', $this->varRegex);
-        $envFiles = (array) glob($meta->appDir . '/.env*');
+        $srcFiles = $this->getFiles($meta->appDir . DIRECTORY_SEPARATOR . 'src', $this->srcRegex);
+        $varFiles = $this->getFiles($meta->appDir . DIRECTORY_SEPARATOR . 'var', $this->varRegex);
+        $envFiles = (array) glob($meta->appDir . DIRECTORY_SEPARATOR . '.env*');
         $scanFiles = [...$srcFiles, ...$varFiles, ...$envFiles];
-        $composerLock = $meta->appDir . '/composer.lock';
+        $composerLock = $meta->appDir . DIRECTORY_SEPARATOR . 'composer.lock';
         if (file_exists($composerLock)) {
             $scanFiles[] = $composerLock;
         }
@@ -63,33 +72,43 @@ final class FileUpdate
         return (string) filemtime($filename);
     }
 
-    /** @return list<RecursiveDirectoryIterator> */
+    /**
+     * @return list<string>
+     *
+     * @psalm-assert non-empty-string $regex
+     */
     private function getFiles(string $path, string $regex): array
     {
-        $iterator = new RegexIterator(
-            new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator(
-                    $path,
-                    FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::SKIP_DOTS,
-                ),
-                RecursiveIteratorIterator::LEAVES_ONLY,
-            ),
-            $regex,
-            RecursiveRegexIterator::MATCH,
+        $iteratorPath = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        $rdi = new RecursiveDirectoryIterator(
+            $iteratorPath,
+            FilesystemIterator::CURRENT_AS_FILEINFO
+            | FilesystemIterator::KEY_AS_PATHNAME
+            | FilesystemIterator::SKIP_DOTS,
         );
+        $rdiIterator = new RecursiveIteratorIterator($rdi, RecursiveIteratorIterator::LEAVES_ONLY);
 
+        /** @var list<string> $files */
         $files = [];
-        foreach ($iterator as $fileName => $fileInfo) {
+        foreach ($rdiIterator as $key => $fileInfo) {
+            assert(is_string($key) && $key !== '');
             assert($fileInfo instanceof SplFileInfo);
-            if (! $fileInfo->isFile() || $fileInfo->getFilename()[0] === '.') {
+            /** @var non-empty-string $normalizedFileName */
+            $normalizedFileName = str_replace('\\', '/', $key);
+            assert($regex !== '');
+            if (! preg_match($regex, $normalizedFileName)) {
+                continue;
+            }
+
+            if (! $fileInfo->isFile()) {
                 // @codeCoverageIgnoreStart
                 continue;
                 // @codeCoverageIgnoreEnd
             }
 
-            $files[] = $fileName;
+            $files[] = $normalizedFileName;
         }
 
-        return $files; // @phpstan-ignore-line
+        return $files;
     }
 }

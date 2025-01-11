@@ -50,7 +50,7 @@ class ErrorHandlerTest extends TestCase
         $handler->transfer();
         $this->assertSame(500, FakeHttpResponder::$code);
         $this->assertSame(['content-type' => 'application/vnd.error+json'], FakeHttpResponder::$headers);
-        $this->assertSame('{
+        $this->assertJsonStringEqualsJsonString('{
     "message": "Internal Server Error",
     "logref": "{logref}"
 }

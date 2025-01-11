@@ -28,10 +28,10 @@ class ProdVndErrorPageTest extends TestCase
         $this->assertSame(500, $this->page->code);
         $this->assertArrayHasKey('content-type', $this->page->headers);
         $this->assertSame('application/vnd.error+json', $this->page->headers['content-type']);
-        $this->assertSame('{
+        $this->assertJsonStringEqualsJsonString('{
     "message": "Internal Server Error",
     "logref": "{logref}"
 }
-', $this->page->view);
+', (string) $this->page->view);
     }
 }

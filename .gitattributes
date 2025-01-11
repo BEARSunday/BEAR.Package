@@ -20,3 +20,5 @@
 
 # No show diffs
 /vendor-bin/**/composer.lock binary
+
+* text eol=lf

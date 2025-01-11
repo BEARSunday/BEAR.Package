@@ -9,11 +9,14 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 use function assert;
+use function dirname;
 use function file_exists;
 use function file_put_contents;
 use function serialize;
 use function unlink;
 use function unserialize;
+
+use const DIRECTORY_SEPARATOR;
 
 class CliRouterTest extends TestCase
 {
@@ -22,8 +25,8 @@ class CliRouterTest extends TestCase
 
     protected function setUp(): void
     {
-        $stdOut = __DIR__ . '/stdout.log';
-        $this->stdInFile = __DIR__ . '/stdin.text';
+        $stdOut = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'stdout.log';
+        $this->stdInFile = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'stdin.text';
         $stdIo = (new CliFactory())->newStdio('php://stdin', $stdOut);
         $httpMethodParams = new HttpMethodParams();
         $httpMethodParams->setStdIn($this->stdInFile);
