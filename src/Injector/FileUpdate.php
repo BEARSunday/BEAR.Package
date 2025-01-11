@@ -100,8 +100,10 @@ final class FileUpdate
                 continue;
             }
 
-            if (! $fileInfo->isFile() || $fileInfo->getFilename()[0] === '.') {
+            if (! $fileInfo->isFile()) {
+                // @codeCoverageIgnoreStart
                 continue;
+                // @codeCoverageIgnoreEnd
             }
 
             $files[] = $normalizedFileName;
