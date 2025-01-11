@@ -8,8 +8,12 @@ use BEAR\AppMeta\Meta;
 use PHPUnit\Framework\TestCase;
 
 use function dirname;
+use function error_log;
+use function str_replace;
+use function time;
 use function touch;
-use function var_dump;
+
+use const DIRECTORY_SEPARATOR;
 
 class FileUpdateTest extends TestCase
 {
@@ -19,21 +23,16 @@ class FileUpdateTest extends TestCase
         $bindingsUpdate = new FileUpdate($meta);
 
         $initialTime = $bindingsUpdate->getLatestUpdateTime($meta);
-        var_dump("Initial time: " . $initialTime);
+        error_log('Initial time: ' . $initialTime);
 
         $isNotUpdated = $bindingsUpdate->isNotUpdated($meta);
         $this->assertTrue($isNotUpdated);
 
-        // パスを正規化してtouchを実行
         $path = str_replace('/', DIRECTORY_SEPARATOR, dirname(__DIR__) . '/Fake/fake-app/src/Module/AppModule.php');
-        touch($path);
-
-        if (PHP_OS_FAMILY === 'Windows') {
-            sleep(1);
-        }
+        touch($path, time() + 1);
 
         $newTime = $bindingsUpdate->getLatestUpdateTime($meta);
-        var_dump("New time: " . $newTime);
+        error_log('New time: ' . $newTime);
 
         $isNotUpdated = $bindingsUpdate->isNotUpdated($meta);
         $this->assertFalse($isNotUpdated);
