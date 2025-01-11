@@ -36,8 +36,12 @@ final class FileUpdate
         $normalizedAppDir = str_replace('\\', '/', rtrim($meta->appDir, '\\/')) . '/';
         $this->srcRegex = sprintf('#^(?!.*(%ssrc/Resource)).*?$#m', $normalizedAppDir);
         $this->varRegex = sprintf(
-            '#^(?!%s(?:var/tmp|var/log|var/templates|var/phinx)).*$#',
+            '#^(?!%s(?:var%stmp|var%slog|var%stemplates|var%sphinx)).*$#',
             preg_quote($normalizedAppDir, '#'),
+            preg_quote(DIRECTORY_SEPARATOR, '#'),
+            preg_quote(DIRECTORY_SEPARATOR, '#'),
+            preg_quote(DIRECTORY_SEPARATOR, '#'),
+            preg_quote(DIRECTORY_SEPARATOR, '#'),
         );
         $this->updateTime = $this->getLatestUpdateTime($meta);
     }
