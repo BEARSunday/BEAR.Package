@@ -17,11 +17,11 @@ class FileUpdateTest extends TestCase
     {
         $meta = new Meta('FakeVendor\HelloWorld', 'app');
         $bindingsUpdate = new FileUpdate($meta);
-        var_dump($bindingsUpdate);
         $isNotUpdated = $bindingsUpdate->isNotUpdated($meta);
         $this->assertTrue($isNotUpdated);
-
-        touch(dirname(__DIR__) . '/Fake/fake-app/src/Module/AppModule.php');
+        // touch normalized path
+        $normalizedPath = str_replace('\\', '/', dirname(__DIR__) . '/Fake/fake-app/src/Module/AppModule.php');
+        touch($normalizedPath);
         $isNotUpdated = $bindingsUpdate->isNotUpdated($meta);
         $this->assertFalse($isNotUpdated);
     }
